@@ -204,13 +204,17 @@
     <kwd-group>
       <xsl:for-each select="term">
         <kwd>
-          <xsl:apply-templates select="@id" mode="#current"/>
+          <xsl:apply-templates select="@id, @key" mode="#current"/>
           <xsl:value-of select="."/>
         </kwd>
       </xsl:for-each>
     </kwd-group>
   </xsl:template>
   
+  <xsl:template match="textClass/keywords/@key" mode="tei2bits">
+    <xsl:attribute name="content-type" select="."/>
+  </xsl:template>
+
   <xsl:template match="css:rules" mode="tei2bits">
     <custom-meta-group>
       <xsl:copy>
