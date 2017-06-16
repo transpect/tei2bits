@@ -200,8 +200,9 @@
     <!-- perhaps later -->
   </xsl:template>
   
-  <xsl:template match="textClass/keywords" mode="tei2bits">
+  <xsl:template match="keywords" mode="tei2bits">
     <kwd-group>
+      <xsl:apply-templates select="term[1]/@xml:lang" mode="#current"/>
       <xsl:for-each select="term">
         <kwd>
           <xsl:apply-templates select="@id, @key" mode="#current"/>
@@ -211,7 +212,7 @@
     </kwd-group>
   </xsl:template>
   
-  <xsl:template match="textClass/keywords/@key" mode="tei2bits">
+  <xsl:template match="keywords/term/@key" mode="tei2bits">
     <xsl:attribute name="content-type" select="."/>
   </xsl:template>
 
@@ -484,7 +485,7 @@
   
 
   <!-- document structure -->
-  <xsl:template mode="tei2bits" match="div[not(@type = ('dedication', 'marginal', 'motto'))] | *[matches(local-name(), 'div[1-9]')]">
+  <xsl:template mode="tei2bits" match="div[not(@type = ('dedication', 'marginal', 'motto', 'part', 'article', 'chapter'))] | *[matches(local-name(), 'div[1-9]')]">
     <sec>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:call-template name="sec-meta"/>
@@ -493,23 +494,24 @@
   </xsl:template>
   
   <xsl:template name="sec-meta">
-    <xsl:if test="byline or abstract or keywords ">
+    <xsl:if test="byline or abstract or keywords or argument ">
       <sec-meta>
-        <xsl:apply-templates select="byline, abstract, keywords" mode="#current"/>
+        <xsl:apply-templates select="byline, abstract, argument, keywords" mode="#current"/>
       </sec-meta>
     </xsl:if>
   </xsl:template>
   
   <xsl:template name="sec-body">
-    <xsl:apply-templates select="node() except (byline, abstract, keywords)" mode="#current"/>
+    <xsl:apply-templates select="node() except (byline, abstract, argument, keywords)" mode="#current"/>
   </xsl:template>
   
-  <xsl:template mode="tei2bits" priority="2" match="*[self::div[not(@type = ('dedication', 'marginal', 'motto'))] | *[matches(local-name(), 'div[1-9]')]]/@rend">
+  <xsl:template mode="tei2bits" priority="2" match="*[self::div[not(@type = ('dedication', 'marginal', 'motto', 'part', 'article', 'chapter'))] | *[matches(local-name(), 'div[1-9]')]]/@rend">
     <xsl:attribute name="sec-type" select="."/>
   </xsl:template>
 
   <xsl:template match="div[@type = ('part', 'chapter', 'subpart', 'article')]" mode="tei2bits" priority="3">
     <book-part>
+      <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:call-template name="book-part-meta"/>
       <xsl:call-template name="book-part-front-matter"/>
       <xsl:call-template name="book-part-body"/>
@@ -517,12 +519,14 @@
     </book-part>
   </xsl:template>
   
+  <xsl:template match="div[@type = ('part', 'chapter', 'subpart', 'article')]/@rend" mode="tei2bits" priority="3"/>
+
   <xsl:template name="book-part-meta">
     <book-part-meta>
       <title-group>
         <xsl:apply-templates select="head" mode="#current"/>
       </title-group>
-      <xsl:apply-templates select="byline, dateline, abstract, keywords" mode="#current"/>
+      <xsl:apply-templates select="byline, dateline, abstract, argument, keywords" mode="#current"/>
     </book-part-meta>
   </xsl:template>
   
@@ -536,7 +540,7 @@
   
   <xsl:template name="book-part-body">
     <body>
-      <xsl:apply-templates select="node() except (byline, dateline, abstract, keywords, head, div[@type = ('dedication', 'index', 'app', 'appendix')], divGen[@type = ('toc', 'index')], biblList)" mode="#current"/>
+      <xsl:apply-templates select="node() except (byline, head, dateline, abstract, argument, keywords, div[@type = ('dedication', 'index', 'app', 'appendix')], divGen[@type = ('toc', 'index')], biblList)" mode="#current"/>
     </body>
   </xsl:template>
   
@@ -550,17 +554,19 @@
   
   <xsl:template match="@type" mode="tei2bits" priority="2"/>
   
-  <xsl:template match="div[@type = ('part', 'chapter', 'subpart', 'article')]/@type" mode="tei2bits" priority="2">
+  <xsl:template match="div[@type = ('part', 'chapter', 'subpart', 'article')]/@type" mode="tei2bits" priority="3">
     <xsl:attribute name="book-part-type" select="."/>
   </xsl:template>
+
+  <xsl:template match="argument" mode="tei2bits">
+    <abstract>
+      <xsl:call-template name="css:content"/>
+    </abstract>
+  </xsl:template>
+
   
   <!-- Not handled yet or no equivalent elements determined yet-->
   <!--
-    <xsl:template match="argument" mode="tei2bits_UNHANDLED">
-    <div class="introduction">
-    <xsl:call-template name="css:content"/>
-    </div>
-    </xsl:template>
     
     <xsl:template match="postscript" mode="tei2bits_UNHANDLED">
     <div>
@@ -681,10 +687,14 @@
   
   <xsl:template match="note" mode="tei2bits">
     <fn>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@* except @n, @n, node()" mode="#current"/>
     </fn>
   </xsl:template>
   
+  <xsl:template match="note[@type = 'footnote']/@n" mode="tei2bits">
+    <label><xsl:value-of select="."/></label>
+  </xsl:template>
+
   <xsl:template match="note[not(@type = 'footnote')]" mode="tei2bits">
     <p>
       <xsl:call-template name="css:content">
@@ -797,7 +807,8 @@
     </p>
   </xsl:template>
   
-  <xsl:template match="head" mode="tei2bits">
+  <!-- TO DO: label handling-->
+  <xsl:template match="head[not(parent::*[self::table | self::figure])]" mode="tei2bits">
     <title>
       <xsl:call-template name="css:content">
         <xsl:with-param name="root" select="$root" tunnel="yes" as="document-node()"/>
@@ -805,6 +816,16 @@
     </title>
   </xsl:template>
   
+  <xsl:template match="head[parent::*[self::table | self::figure]]" mode="tei2bits">
+    <caption>
+      <title>
+        <xsl:call-template name="css:content">
+          <xsl:with-param name="root" select="$root" tunnel="yes" as="document-node()"/>
+        </xsl:call-template>
+      </title>
+    </caption>
+  </xsl:template>
+
   <xsl:template match="head[@type = 'sub']" mode="tei2bits" priority="2">
     <subtitle>
       <xsl:call-template name="css:content">
@@ -821,9 +842,9 @@
   
   <xsl:template match="*[*:contrib]" mode="clean-up">
     <xsl:copy copy-namespaces="no">
-      <xsl:for-each-group select="node()" group-by="boolean(self::*:contrib)">
+      <xsl:for-each-group select="node()" group-by="local-name()">
         <xsl:choose>
-          <xsl:when test="current-grouping-key()">
+          <xsl:when test="current-grouping-key() = 'contrib'">
             <xsl:element name="contrib-group">
               <xsl:apply-templates select="current-group()" mode="#current"/>
             </xsl:element>
@@ -835,4 +856,5 @@
       </xsl:for-each-group>
     </xsl:copy>
   </xsl:template>
+
 </xsl:stylesheet>
