@@ -26,9 +26,8 @@
   <p:output port="result" primary="true" />
   <p:serialization port="result" 
     omit-xml-declaration="false"
-    method="xhtml"
-    doctype-public="-//W3C//DTD XHTML 1.0//EN"
-    doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" />
+    doctype-public="-//NLM//DTD BITS Book Interchange DTD v2.0 20151225//EN"
+    doctype-system="https://jats.nlm.nih.gov/extensions/bits/2.0/BITS-book2.dtd" />
 
   <p:output port="report" sequence="true">
     <p:pipe port="report" step="dtp"/>

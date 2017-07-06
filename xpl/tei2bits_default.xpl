@@ -44,10 +44,8 @@
     <p:input port="source">
       <p:inline>
         <c:models>
-          <c:model href="http://www.le-tex.de/resource/schema/BITS/2.0/BITS-cssa.rng"
+          <c:model href="http://www.le-tex.de/resource/schema/BITS/BITS-cssa/BITS-with-cssa.rng"
             type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"/>
- <!--         <c:model href="http://www.le-tex.de/resource/schema/tei-cssa/tei/tei_all.rng"
-            type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"/>-->
         </c:models>
       </p:inline>
     </p:input>

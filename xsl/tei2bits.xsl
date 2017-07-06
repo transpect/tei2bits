@@ -26,7 +26,7 @@
   <xsl:key name="link-by-anchor" match="ref" use="@target"/>
   
   <!-- identity template -->
-  <xsl:template match="* | @*" mode="tei2bits clean-up"	priority="-0.5">
+  <xsl:template match="* | @*" mode="tei2bits clean-up" priority="-0.5">
     <xsl:copy copy-namespaces="no">
       <xsl:apply-templates select="@* | node()" mode="#current"/>
     </xsl:copy>
@@ -192,11 +192,71 @@
     <xsl:attribute name="content-type" select="'right-tab'"/>
   </xsl:template>
   
-  <xsl:template match="teiHeader | text | fileDesc | profileDesc | textClass | encodingDesc | text-front | text/body | text/back" mode="tei2bits">
+  <xsl:template match="teiHeader | text | fileDesc | profileDesc | seriesStmt | publicationStmt | encodingDesc | text-front | text/body | text/back | opener[idno]" mode="tei2bits">
     <xsl:apply-templates select="node()" mode="#current"/>
   </xsl:template>
   
-  <xsl:template match="titleStmt | publicationStmt | sourceDesc | styleDefDecl | langUsage" mode="tei2bits">
+  <xsl:template match="textClass" mode="tei2bits">
+    <xsl:apply-templates select="node() except keywords[@corresp]" mode="#current"/>
+  </xsl:template>
+  
+  <xsl:template match="editionStmt" mode="tei2bits">
+    <edition>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </edition>
+  </xsl:template>
+
+  <xsl:template match="seriesStmt/biblScope[@unit = 'volume']" mode="tei2bits">
+    <book-volume-number>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </book-volume-number>
+  </xsl:template>
+
+  <xsl:template match="seriesStmt/idno[@type = 'issn']" mode="tei2bits">
+    <issn>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </issn>
+  </xsl:template>
+
+  <xsl:template match="seriesStmt/idno[@type = ('doi', 'isbn')]" mode="tei2bits">
+    <book-id book-id-type="{@type}">
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </book-id>
+  </xsl:template>
+
+  <xsl:template match="publicationStmt/idno" mode="tei2bits">
+    <xsl:if test="normalize-space()">
+      <book-id book-id-type="doi">
+        <xsl:apply-templates select="node()" mode="#current"/>
+      </book-id>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="publicationStmt/date" mode="tei2bits">
+    <pub-date>
+      <string-date>
+        <xsl:apply-templates select="node()" mode="#current"/>
+      </string-date>
+    </pub-date>
+  </xsl:template>
+
+  <xsl:template match="publicationStmt/publisher" mode="tei2bits">
+    <publisher>
+      <publisher-name>
+        <xsl:apply-templates select="@*, node()" mode="#current"/>
+      </publisher-name>
+      <xsl:if test="..[normalize-space(pubPlace)]">
+        <publisher-loc>
+          <xsl:value-of select="normalize-space(../pubPlace)"/>
+        </publisher-loc></xsl:if>
+    </publisher>
+  </xsl:template>
+
+  <xsl:template match="seriesStmt/idno/@subtype" mode="tei2bits">
+    <xsl:attribute name="content-type" select="."/>
+  </xsl:template>
+
+  <xsl:template match="titleStmt | publicationStmt/distributor |  publicationStmt/pubPlace | sourceDesc | styleDefDecl | langUsage" mode="tei2bits">
     <!-- perhaps later -->
   </xsl:template>
   
@@ -345,28 +405,28 @@
   </xsl:template>
   
   <xsl:template name="named-book-part-body">
-    <named-book-part-body>
+    <xsl:element name="named-book-part-body">
       <xsl:apply-templates select="node() except (head, byline)" mode="#current"/>
-    </named-book-part-body>
+    </xsl:element>
   </xsl:template>
   
   <xsl:template name="named-book-part-meta">
     <xsl:if test="head or byline">
-      <book-part-meta>
-        <title-group>
+      <xsl:element name="book-part-meta">
+        <xsl:element name="title-group">
           <xsl:apply-templates select="head" mode="#current"/>
-        </title-group>
+        </xsl:element>
           <xsl:apply-templates select="byline" mode="#current"/>
-      </book-part-meta>
+      </xsl:element>
     </xsl:if>
   </xsl:template>
   
   <xsl:template match="add | emph | orig | date |  unclear| orgName | placeName | state" mode="tei2bits">
-    <named-content>
+    <xsl:element name="named-content">
       <xsl:call-template name="css:content">
         <xsl:with-param name="root" select="$root" tunnel="yes" as="document-node()"/>
       </xsl:call-template>
-    </named-content>
+    </xsl:element>
   </xsl:template>
   
   <xsl:template match="@rendition[. = ('subscript', 'superscript')]" mode="tei2bits"/>
@@ -482,10 +542,23 @@
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </abstract>
   </xsl:template>
-  
 
+  <xsl:template match="abstract[@xml:lang ne /*/@xml:lang] | argument[@xml:lang ne /*/@xml:lang]" mode="tei2bits">
+    <!--    <xsl:variable name="translation" select="p[@xml:lang ne /*/@xml:lang], p[key('rule-by-name', @rend)][@xml:lang ne /*/@xml:lang]" as="element(p)*"/>
+      <abstract>
+      <xsl:apply-templates select="@*, node()[not(some $p in $translation satisfies ($p is .))]" mode="#current"/>
+      <xsl:if test="$translation">-->
+    <trans-abstract>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </trans-abstract>
+    <!--</xsl:if>
+      </abstract>-->
+  </xsl:template>
+  
+  <xsl:variable name="structural-containers" as="xs:string+" select="('dedication', 'marginal', 'motto', 'part', 'article', 'chapter')"/>
+  <xsl:variable name="main-structural-containers" as="xs:string+" select="('part', 'article', 'book-review', 'chapter')"/>
   <!-- document structure -->
-  <xsl:template mode="tei2bits" match="div[not(@type = ('dedication', 'marginal', 'motto', 'part', 'article', 'chapter'))] | *[matches(local-name(), 'div[1-9]')]">
+  <xsl:template mode="tei2bits" match="div[not(@type = $structural-containers)] | *[matches(local-name(), 'div[1-9]')]">
     <sec>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:call-template name="sec-meta"/>
@@ -494,22 +567,22 @@
   </xsl:template>
   
   <xsl:template name="sec-meta">
-    <xsl:if test="byline or abstract or keywords or argument ">
+    <xsl:if test="byline or abstract or keywords or argument or opener[idno] or p[@rend = 'artpagenums']">
       <sec-meta>
-        <xsl:apply-templates select="byline, abstract, argument, keywords" mode="#current"/>
+        <xsl:apply-templates select="byline, opener[idno], abstract, argument, keywords, p[@rend = 'artpagenums']" mode="#current"/>
       </sec-meta>
     </xsl:if>
   </xsl:template>
   
   <xsl:template name="sec-body">
-    <xsl:apply-templates select="node() except (byline, abstract, argument, keywords)" mode="#current"/>
+    <xsl:apply-templates select="node() except (opener[idno], byline, abstract, argument, keywords, p[@rend = 'artpagenums'])" mode="#current"/>
   </xsl:template>
   
-  <xsl:template mode="tei2bits" priority="2" match="*[self::div[not(@type = ('dedication', 'marginal', 'motto', 'part', 'article', 'chapter'))] | *[matches(local-name(), 'div[1-9]')]]/@rend">
+  <xsl:template mode="tei2bits" priority="2" match="*[self::div[not(@type = $structural-containers)] | *[matches(local-name(), 'div[1-9]')]]/@rend">
     <xsl:attribute name="sec-type" select="."/>
   </xsl:template>
 
-  <xsl:template match="div[@type = ('part', 'chapter', 'subpart', 'article')]" mode="tei2bits" priority="3">
+  <xsl:template match="div[@type = $main-structural-containers]" mode="tei2bits" priority="3">
     <book-part>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:call-template name="book-part-meta"/>
@@ -518,15 +591,17 @@
       <xsl:call-template name="book-part-back"/>
     </book-part>
   </xsl:template>
-  
-  <xsl:template match="div[@type = ('part', 'chapter', 'subpart', 'article')]/@rend" mode="tei2bits" priority="3"/>
+
+  <xsl:template match="div[@type = $main-structural-containers]/@rend" mode="tei2bits" priority="3"/>
+  <xsl:key name="tei2bits:corresp-keywords" match="/TEI/teiHeader/profileDesc/textClass/keywords" use="@corresp"/>
 
   <xsl:template name="book-part-meta">
     <book-part-meta>
+      <xsl:apply-templates select="opener[idno]" mode="#current"/>
       <title-group>
         <xsl:apply-templates select="head" mode="#current"/>
       </title-group>
-      <xsl:apply-templates select="byline, dateline, abstract, argument, keywords" mode="#current"/>
+      <xsl:apply-templates select="byline, dateline, abstract, argument, keywords, key('tei2bits:corresp-keywords', concat('#', current()/@xml:id)), p[@rend = 'artpagenums']" mode="#current"/>
     </book-part-meta>
   </xsl:template>
   
@@ -540,7 +615,7 @@
   
   <xsl:template name="book-part-body">
     <body>
-      <xsl:apply-templates select="node() except (byline, head, dateline, abstract, argument, keywords, div[@type = ('dedication', 'index', 'app', 'appendix')], divGen[@type = ('toc', 'index')], biblList)" mode="#current"/>
+      <xsl:apply-templates select="node() except (opener[idno], byline, head, dateline, abstract, argument, keywords, p[@rend = 'artpagenums'], div[@type = ('dedication', 'index', 'app', 'appendix')], divGen[@type = ('toc', 'index')], biblList)" mode="#current"/>
     </body>
   </xsl:template>
   
@@ -554,8 +629,18 @@
   
   <xsl:template match="@type" mode="tei2bits" priority="2"/>
   
-  <xsl:template match="div[@type = ('part', 'chapter', 'subpart', 'article')]/@type" mode="tei2bits" priority="3">
+  <xsl:template match="div[@type = $main-structural-containers]/@subtype" mode="tei2bits" priority="3">
     <xsl:attribute name="book-part-type" select="."/>
+  </xsl:template>
+
+  <xsl:template match="div[@type = $main-structural-containers]/opener[every $n in node()[normalize-space()] satisfies $n[self::idno]]/idno" mode="tei2bits">
+    <book-part-id>
+       <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </book-part-id>
+  </xsl:template>
+
+  <xsl:template match="div[@type = $main-structural-containers]/opener[every $n in node()[normalize-space()] satisfies $n[self::idno]]/idno/@type" mode="tei2bits" priority="4">
+    <xsl:attribute name="book-part-id-type" select="lower-case(.)"/>
   </xsl:template>
 
   <xsl:template match="argument" mode="tei2bits">
@@ -564,7 +649,24 @@
     </abstract>
   </xsl:template>
 
-  
+  <xsl:template match="p[@rend = 'artpagenums']" mode="tei2bits">
+    <xsl:choose>
+      <xsl:when test="matches(., '\d+\p{Zs}*[-–]\p{Zs}*\d+')">
+        <fpage>
+          <xsl:value-of select="replace(., '^.*(\d+)\p{Zs}*[-–]\p{Zs}*\d+.*$', '$1')"/>
+        </fpage>
+        <lpage>
+          <xsl:value-of select="replace(., '^.*\d+\p{Zs}*[-–]\p{Zs}*(\d+).*$', '$1')"/>
+        </lpage>
+      </xsl:when>
+      <xsl:otherwise>
+        <notes>
+          <product><page-range><xsl:apply-templates select="node()" mode="#current"/></page-range></product>
+        </notes>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <!-- Not handled yet or no equivalent elements determined yet-->
   <!--
     
@@ -847,6 +949,8 @@
           <xsl:when test="current-grouping-key() = 'contrib'">
             <xsl:element name="contrib-group">
               <xsl:apply-templates select="current-group()" mode="#current"/>
+
+              <xsl:call-template name="contrib-bio"/>
             </xsl:element>
           </xsl:when>
           <xsl:otherwise>
@@ -854,6 +958,40 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:for-each-group>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:key name="tei2bits:bio-by-name" match="*:bio" use="normalize-space(replace(string-join(*:p[1]/*[1]//text(), ''), '[:,]\p{Zs}*$', ''))"/>
+
+  <xsl:template match="div[@type = 'contrib-bio' or @rend = 'contrib-bio']" mode="tei2bits" priority="5">
+    <bio>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </bio>
+  </xsl:template>
+
+
+  <!-- clean up mode -->
+
+  <xsl:template match="*:bio" mode="clean-up" priority="2">
+    <xsl:param name="render-bio" as="xs:boolean?" tunnel="yes"/>
+    <xsl:if test="$render-bio">
+      <xsl:next-match/>
+    </xsl:if>
+  </xsl:template>
+
+  <xsl:template name="contrib-bio">
+    <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join(current-group()//text(), '')))" mode="#current">
+      <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
+    </xsl:apply-templates>
+  </xsl:template>
+
+  <xsl:template match="*:book-meta" mode="clean-up" priority="2">
+    <xsl:copy  copy-namespaces="no">
+    <!-- bringing the meta elements into the correct order -->
+      <xsl:apply-templates select="@*, *:book-id, *:subj-group, *:book-title-group, *:contrib-group, *:aff, *:aff-affiliates, 
+        *:author-notes, *:pub-date, *:book-volume-number, *:book-volume-id, *:issn, *:issn-l, *:publisher, 
+        *:edition, *:supplementary-material, *:pub-history, *:permissions, *:self-uri, *:related-article, *:related-object, *:abstract, 
+        *:trans-abstract, *:kwd-group, *:funding-group, *:conference, *:counts, *:custom-meta-group, *:notes" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
