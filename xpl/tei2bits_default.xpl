@@ -45,7 +45,7 @@
     <p:input port="source">
       <p:inline>
         <c:models>
-          <c:model href="http://www.le-tex.de/resource/schema/BITS/BITS-cssa/BITS-with-cssa.rng"
+          <c:model href="http://www.le-tex.de/resource/schema/bits/2.0-cssa/bits-with-cssa.rng"
             type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"/>
         </c:models>
       </p:inline>

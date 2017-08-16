@@ -176,8 +176,8 @@
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </pub-id>
   </xsl:template>
-
-  <xsl:template match="listBibl | div[@type = 'bibliography']" mode="tei2bits">
+ 
+  <xsl:template match="listBibl" mode="tei2bits" priority="2">
     <ref-list>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </ref-list>
@@ -577,6 +577,12 @@
     </xref>
   </xsl:template>
   
+  <xsl:template match="ref[starts-with(., 'mailto:')]" mode="tei2bits" priority="7">
+    <email>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </email>
+  </xsl:template>
+
   <xsl:template match="ref[starts-with(@target, '#')]/@target" mode="tei2bits" priority="2">
     <xsl:attribute name="rid" select="."/>
   </xsl:template>
@@ -1071,7 +1077,7 @@
               <xsl:element name="contrib-group">
                 <xsl:for-each select="current-group()">
                   <xsl:apply-templates select="." mode="#current"/>
-                  <xsl:if test="not(*:bio)">
+                  <xsl:if test="not(*:bio) and not(ancestor::*[self::*:front-matter-part[@book-part-type='editorial']])">
                     <xsl:call-template name="contrib-bio"/>
                   </xsl:if>
                 </xsl:for-each>
@@ -1115,7 +1121,7 @@
       <xsl:apply-templates select="@*, *:book-id, *:subj-group, *:book-title-group, *:contrib-group, *:aff, *:aff-affiliates, 
         *:author-notes, *:pub-date, *:book-volume-number, *:book-volume-id, *:issn, *:issn-l, *:isbn, *:publisher, *:edition, 
          *:supplementary-material, *:pub-history, *:permissions, *:self-uri, *:related-article, *:related-object, *:abstract, 
-        *:trans-abstract, *:kwd-group, *:funding-group, *:conference, *:counts, *:custom-meta-group, *:note" mode="#current">
+        *:trans-abstract, *:kwd-group, *:funding-group, *:conference, *:counts, *:custom-meta-group, *:notes" mode="#current">
             <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
       </xsl:apply-templates>
     </xsl:copy>
@@ -1127,7 +1133,7 @@
       <xsl:apply-templates select="@*, *:book-part-id, *:subj-group, *:title-group, *:contrib-group, *:aff, *:aff-affiliates, 
         *:author-notes, *:pub-date, *:edition, *:issn, *:issn-l, *:isbn, *:publisher, *:fpage, *:lpage, 
         *:elocation-id, *:supplementary-material, *:pub-history, *:permissions, *:self-uri, *:related-article, *:related-object, *:abstract, 
-        *:trans-abstract, *:kwd-group, *:funding-group, *:conference, *:counts, *:custom-meta-group, *:note" mode="#current">
+        *:trans-abstract, *:kwd-group, *:funding-group, *:conference, *:counts, *:custom-meta-group, *:notes" mode="#current">
             <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
       </xsl:apply-templates>
     </xsl:copy>
