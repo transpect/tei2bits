@@ -177,10 +177,32 @@
     </pub-id>
   </xsl:template>
  
-  <xsl:template match="listBibl" mode="tei2bits" priority="2">
+  <xsl:function name="tei2bits:is-ref-list" as="xs:boolean">
+    <xsl:param name="elt" as="element(div)"/>
+    <xsl:sequence select="exists($elt[self::div[every $elt in * satisfies ($elt[self::listBibl[not(head)] or self::head])]])"/>
+  </xsl:function>
+
+  <xsl:template match="div[tei2bits:is-ref-list(.)]" mode="tei2bits" priority="2">
     <ref-list>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, node()" mode="#current">
+        <xsl:with-param name="dissolve-listBibl" as="xs:boolean?" tunnel="yes" select="true()"/>
+      </xsl:apply-templates>
     </ref-list>
+  </xsl:template>
+
+  <xsl:template match="listBibl" mode="tei2bits" priority="2">
+    <xsl:param name="dissolve-listBibl" as="xs:boolean?" tunnel="yes"/>
+    <!-- if ancestor div is the ref-list aready-->
+    <xsl:choose>
+      <xsl:when test="$dissolve-listBibl">
+         <xsl:apply-templates select="node()" mode="#current"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <ref-list>
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </ref-list>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xsl:template match="table/@rendition[matches(., '\.(png|jpe?g)$', 'i')]" mode="tei2bits">
@@ -663,7 +685,7 @@
     <xsl:apply-templates select="node() except (opener[idno], byline, abstract, argument, keywords, p[@rend = 'artpagenums'])" mode="#current"/>
   </xsl:template>
   
-  <xsl:template mode="tei2bits" priority="2" match="*[self::div[not(@type = $structural-containers)] | *[matches(local-name(), 'div[1-9]')]]/@rend">
+  <xsl:template mode="tei2bits" priority="2" match="*[self::div[not(@type = ($structural-containers, 'bibliography'))] | *[matches(local-name(), 'div[1-9]')]]/@rend">
     <xsl:attribute name="sec-type" select="."/>
   </xsl:template>
 
@@ -700,14 +722,14 @@
   
   <xsl:template name="book-part-body">
     <body>
-      <xsl:apply-templates select="node() except (opener[idno], byline, head, dateline, abstract, argument, keywords, p[@rend = 'artpagenums'], div[@type = ('dedication', 'index', 'app', 'appendix')], divGen[@type = ('toc', 'index')], listBibl)" mode="#current"/>
+      <xsl:apply-templates select="node() except (opener[idno], byline, head, dateline, abstract, argument, keywords, p[@rend = 'artpagenums'], div[@type = ('dedication', 'index', 'app', 'appendix', 'bibliography')], div[tei2bits:is-ref-list(.)], divGen[@type = ('toc', 'index')], listBibl)" mode="#current"/>
     </body>
   </xsl:template>
   
   <xsl:template name="book-part-back">
-    <xsl:if test="some $elt in * satisfies $elt[self::div[@type = ('index', 'app', 'appendix')] | self::divGen[@type = 'index'] | self::listBibl]">
+    <xsl:if test="some $elt in * satisfies $elt[self::div[@type = ('index', 'app', 'appendix', 'bibliography')] | self::divGen[@type = 'index'] | self::listBibl] | self::div[tei2bits:is-ref-list(.)]">
       <back>
-        <xsl:apply-templates select="*[self::div[@type = ('index', 'app', 'appendix')] | self::divGen[@type = 'index'] | self::listBibl]" mode="#current"/>
+        <xsl:apply-templates select="*[self::div[@type = ('index', 'app', 'appendix', 'bibliography')] | self::div[tei2bits:is-ref-list(.)] | self::divGen[@type = 'index'] | self::listBibl]" mode="#current"/>
       </back>
     </xsl:if>
   </xsl:template>
