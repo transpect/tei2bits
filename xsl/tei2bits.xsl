@@ -303,6 +303,18 @@
         <xsl:apply-templates select="editor" mode="#current"/>
       </contrib-group>
     </xsl:if>
+    <xsl:if test="title[@type = 'main']">
+      <book-title-group>
+        <book-title>
+          <xsl:value-of select="title[@type = 'main']"/>
+        </book-title>
+        <xsl:if test="title[@type = 'sub']">
+          <subtitle>
+            <xsl:value-of select="title[@type = 'sub']"/>
+          </subtitle>
+        </xsl:if>
+      </book-title-group>
+    </xsl:if>
     <!-- needed for metadata. other information is retrieved differently -->
   </xsl:template>
 
@@ -399,9 +411,12 @@
     <xsl:param name="in-metadata" as="xs:boolean?" tunnel="yes"/>
     <xsl:choose>
       <xsl:when test="$in-metadata">
-        <book-title-group>
-          <xsl:apply-templates select="@*, node()" mode="#current"/>
-        </book-title-group>
+        <xsl:if test="not(/TEI/teiHeader/fileDesc/titleStmt/title[@type = 'main'])">
+          
+          <book-title-group>
+            <xsl:apply-templates select="@*, node()" mode="#current"/>
+          </book-title-group>
+        </xsl:if>
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates mode="#current"/>
