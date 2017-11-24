@@ -806,12 +806,15 @@
     </div>
     </xsl:template>
     
-    <xsl:template match="epigraph" mode="tei2bits_UNHANDLED">
-    <todo content-type="epigraph"/>
-    </xsl:template>
-    
   -->
   
+  <xsl:template match="epigraph" mode="tei2bits">
+    <disp-quote>
+      <xsl:attribute name="content-type" select="'epigraph'"/>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </disp-quote>
+  </xsl:template>
+
   <xsl:template match="state/label" mode="tei2bits" priority="2">
     <xsl:apply-templates select="node()" mode="#current"/>
   </xsl:template>
