@@ -1131,14 +1131,11 @@
       </xsl:copy>
   </xsl:template>
 
-  <xsl:key name="tei2bits:bio-by-name" match="*:bio" use="normalize-space(replace(string-join(*:p[1]/*[1]//text(), ''), '[:,]\p{Zs}*$', ''))"/>
-
   <xsl:template match="div[@type = 'contrib-bio' or @rend = 'contrib-bio']" mode="tei2bits" priority="5">
     <bio>
       <xsl:apply-templates select="node()" mode="#current"/>
     </bio>
   </xsl:template>
-
 
   <!-- clean up mode -->
 
@@ -1149,7 +1146,10 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:key name="tei2bits:bio-by-name" match="*:bio" use="normalize-space(replace(string-join(*:p[1]/*[1]//text(), ''), '^(.+?)[:,]\p{Zs}*$', '$1'))"/>
+
   <xsl:template name="contrib-bio">
+  <!-- mehrere Artikelautoren hier nicht berücksichtigt. Müsste dann pro contrib aufgerufen werden!-->
     <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((.//*:given-names/text(), .//*:surname/text()),  ' ')))" mode="#current">
       <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
     </xsl:apply-templates>
