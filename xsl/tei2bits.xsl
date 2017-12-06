@@ -263,7 +263,7 @@
     </issn>
   </xsl:template>
 
-  <xsl:template match="seriesStmt/idno[@type = ('doi', 'isbn')]" mode="tei2bits">
+  <xsl:template match="seriesStmt/idno[@type = ('doi', 'poi', 'isbn')]" mode="tei2bits">
     <book-id book-id-type="{@type}">
       <xsl:apply-templates select="node()" mode="#current"/>
     </book-id>
@@ -751,7 +751,7 @@
   </xsl:template>
   
   <xsl:template name="book-part-back">
-    <xsl:if test="some $elt in * satisfies $elt[self::div[@type = ('index', 'app', 'appendix', 'bibliography')] | self::divGen[@type = 'index'] | self::listBibl] | self::div[tei2bits:is-ref-list(.)]">
+    <xsl:if test="some $elt in * satisfies $elt[self::div[@type = ('index', 'app', 'appendix', 'bibliography')] | self::divGen[@type = 'index'] | self::listBibl | self::div[tei2bits:is-ref-list(.)]]">
       <back>
         <xsl:apply-templates select="*[self::div[@type = ('index', 'app', 'appendix', 'bibliography')] | self::div[tei2bits:is-ref-list(.)] | self::divGen[@type = 'index'] | self::listBibl]" mode="#current"/>
       </back>
@@ -984,10 +984,21 @@
           <xsl:apply-templates select="head, note" mode="#current"/>
         </caption>
       </xsl:if>
-      <xsl:apply-templates select="node() except (head, note)" mode="#current"/>
+      <xsl:apply-templates select="node() except (head, note, bibl[@type = 'copyright'])" mode="#current"/>
+      <xsl:if test="bibl[@type = 'copyright']">
+        <permissions>
+          <xsl:apply-templates select="bibl[@type = 'copyright']" mode="#current"/>
+        </permissions>
+      </xsl:if>
     </fig>
   </xsl:template>
   
+  <xsl:template match="figure/bibl[@type = 'copyright']" mode="tei2bits">
+    <copyright-statement>
+      <xsl:apply-templates select="@* except @type, node()" mode="#current"/>
+    </copyright-statement>
+  </xsl:template>
+
   <xsl:template match="graphic/@rend" mode="tei2bits"/>
   
   <xsl:template match="graphic/@url" mode="tei2bits">
