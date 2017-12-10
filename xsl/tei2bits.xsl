@@ -290,10 +290,11 @@
       <publisher-name>
         <xsl:apply-templates select="@*, node()" mode="#current"/>
       </publisher-name>
-      <xsl:if test="..[normalize-space(pubPlace)]">
+      <xsl:if test="..[normalize-space(pubPlace[1])]">
         <publisher-loc>
-          <xsl:value-of select="normalize-space(../pubPlace)"/>
-        </publisher-loc></xsl:if>
+          <xsl:value-of select="normalize-space(../pubPlace[1])"/>
+        </publisher-loc>
+      </xsl:if>
     </publisher>
   </xsl:template>
 
@@ -336,7 +337,7 @@
     <xsl:choose>
       <xsl:when test="term[@xml:lang]">
         <xsl:for-each-group select="term" group-by="@xml:lang">
-          <kwd-group>
+          <kwd-group kwd-group-type="keyword">
             <xsl:attribute name="xml:lang" select="current-grouping-key()"/>
             <xsl:for-each select="current-group()">
               <kwd>
@@ -475,6 +476,9 @@
       <xsl:otherwise>
         <contrib>
           <xsl:apply-templates select="@*" mode="#current"/>
+           <xsl:if test="persName[@type]">
+              <xsl:attribute name="contrib-type" select="persName/@type"/>
+          </xsl:if>
           <xsl:choose>
             <xsl:when test="every $n in node() satisfies $n[self::text()]">
               <string-name>
@@ -497,12 +501,8 @@
 
   <xsl:template match="byline" mode="tei2bits">
     <!-- TO DO: has to be further specified-->
-    <contrib>
-      <xsl:apply-templates select="@*" mode="#current"/>
-      <xsl:if test="persName[@type]">
-        <xsl:attribute name="contrib-type" select="persName/@type"/>
-      </xsl:if>
-      <xsl:apply-templates select="node()" mode="#current"/>
+    <contrib contrib-type="{(*:persName/@type, 'author')[1]}">
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
     </contrib>
   </xsl:template>
   
