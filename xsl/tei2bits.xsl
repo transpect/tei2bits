@@ -285,7 +285,7 @@
     </pub-date>
   </xsl:template>
 
-  <xsl:template match="publicationStmt/publisher | docTitle/docImprint" mode="tei2bits">
+  <xsl:template match="publicationStmt/publisher | titlePage/docImprint" mode="tei2bits">
     <publisher>
       <publisher-name>
         <xsl:apply-templates select="@*, node()" mode="#current"/>
@@ -433,8 +433,14 @@
   <xsl:template match="editor | author" mode="tei2bits" priority="2">
     <xsl:element name="contrib">
       <xsl:attribute name="contrib-type" select="local-name()"/>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@* except @role, node(), @role" mode="#current"/>
     </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="editor/@role | author/@role" mode="tei2bits" priority="2">
+    <role>
+      <xsl:value-of select="."/>
+    </role>
   </xsl:template>
 
   <xsl:template match="byline/location" mode="tei2bits" priority="2">
