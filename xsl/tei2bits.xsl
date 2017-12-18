@@ -507,9 +507,15 @@
 
   <xsl:template match="byline" mode="tei2bits">
     <!-- TO DO: has to be further specified-->
+    <xsl:if test="persName">
+      <xsl:apply-templates select="text()[1]" mode="#current"/>
+    </xsl:if>
     <contrib contrib-type="{(*:persName/@type, 'author')[1]}">
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, if (persName) then node() except text()[1] else node()" mode="#current"/>
     </contrib>
+    <xsl:if test="persName">
+      <xsl:apply-templates select="text()[last()]" mode="#current"/>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template match="byline/graphic" mode="tei2bits" priority="3">
