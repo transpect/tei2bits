@@ -456,6 +456,14 @@
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template match="byline/ref" mode="tei2bits" priority="2">
+    <xsl:element name="ext-link">
+      <xsl:attribute name="href" select="@target"/>
+      <xsl:attribute name="ext-link-type" select="if (matches(@target, 'mail|@')) then 'email' else 'uri'"/>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </xsl:element>
+  </xsl:template>
+
   <xsl:template match="docTitle/titlePart[not(@type) or @type = 'main']" mode="tei2bits" priority="2">
     <xsl:param name="in-metadata" as="xs:boolean?" tunnel="yes"/>
     <xsl:element name="{if ($in-metadata) then 'book-title' else 'p'}">
@@ -511,7 +519,7 @@
       <xsl:apply-templates select="text()[1]" mode="#current"/>
     </xsl:if>
     <contrib contrib-type="{(*:persName/@type, 'author')[1]}">
-      <xsl:apply-templates select="@*, if (persName) then node() except text()[1] else node()" mode="#current"/>
+      <xsl:apply-templates select="@*, if (persName) then node() except text() else node()" mode="#current"/>
     </contrib>
     <xsl:if test="persName">
       <xsl:apply-templates select="text()[last()]" mode="#current"/>
@@ -605,7 +613,13 @@
   
   <xsl:template match="persName[surname and forename]" mode="tei2bits" priority="2">
     <name>
-      <xsl:apply-templates select="@*, surname, forename, node() except (surname, forename)" mode="#current"/>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:apply-templates select="surname, forename, node() except (text()[1], surname, forename)" mode="#current"/>
+      <xsl:if test="node()[1][self::text()[matches(., '\S')]]">
+        <prefix>
+          <xsl:value-of select="normalize-space(text()[1])"/>
+        </prefix>
+      </xsl:if>
     </name>
   </xsl:template>
   
