@@ -277,6 +277,21 @@
     </xsl:if>
   </xsl:template>
 
+  <xsl:template match="persName[@type = 'author']/roleName" mode="tei2bits" priority="3">
+    <xsl:element name="{if (matches(., '(Dr|Prof)\.')) then 'prefix' else 'role'}">
+        <xsl:apply-templates select="node()" mode="#current"/>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="*:contrib[*:name[*:role]]" mode="clean-up">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <role><xsl:value-of select="*:name/*:role"/></role>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="*:contrib/*:name/*:role" mode="clean-up"/>
+
   <xsl:template match="publicationStmt/date[normalize-space()]" mode="tei2bits">
     <pub-date>
       <string-date>
