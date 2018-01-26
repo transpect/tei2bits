@@ -290,7 +290,7 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="*:contrib/*:name/*:role" mode="clean-up"/>
+  <xsl:template match="*:contrib/*:name/*:role | *:contrib/*:name/*:styled-content" mode="clean-up"/>
 
   <xsl:template match="publicationStmt/date[normalize-space()]" mode="tei2bits">
     <pub-date>
@@ -534,7 +534,7 @@
       <xsl:apply-templates select="text()[1]" mode="#current"/>
     </xsl:if>
     <contrib contrib-type="{(*:persName/@type, 'author')[1]}">
-      <xsl:apply-templates select="@*, if (persName) then node() except text() else node()" mode="#current"/>
+      <xsl:apply-templates select="@*, if (persName) then node() except (text(), seg) else node()" mode="#current"/>
     </contrib>
     <xsl:if test="persName">
       <xsl:apply-templates select="text()[last()]" mode="#current"/>
