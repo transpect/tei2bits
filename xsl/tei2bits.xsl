@@ -529,16 +529,27 @@
   </xsl:template>
 
   <xsl:template match="byline" mode="tei2bits">
-    <!-- TO DO: has to be further specified-->
-    <xsl:if test="persName">
-      <xsl:apply-templates select="text()[1]" mode="#current"/>
-    </xsl:if>
-    <contrib contrib-type="{(*:persName/@type, 'author')[1]}">
-      <xsl:apply-templates select="@*, if (persName) then node() except (text(), seg) else node()" mode="#current"/>
-    </contrib>
-    <xsl:if test="persName">
-      <xsl:apply-templates select="text()[last()]" mode="#current"/>
-    </xsl:if>
+    <xsl:choose>
+      <xsl:when test="not(persName)">
+        <contrib contrib-type="author">
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </contrib>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:for-each-group select="node()" group-adjacent="boolean(.[self::persName | self::location | self::graphic])">
+          <xsl:choose>
+            <xsl:when test="current-grouping-key()">
+              <contrib contrib-type="{(current-group()[self::persName]/@type, 'author')[1]}">
+                <xsl:apply-templates select="current-group()" mode="#current"/>
+              </contrib>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:apply-templates select="current-group()" mode="#current"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:for-each-group>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xsl:template match="byline/graphic" mode="tei2bits" priority="3">
