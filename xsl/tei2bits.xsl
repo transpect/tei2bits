@@ -1069,6 +1069,12 @@
     </xsl:element>
   </xsl:template>
   
+  <xsl:template match="graphic/desc" mode="tei2bits">
+    <alt-text>
+      <xsl:apply-templates select="node()" mode="#current"/>
+    </alt-text>
+  </xsl:template>
+
   <xsl:template match="addrLine" mode="tei2bits">
     <xsl:element name="addr-line" exclude-result-prefixes="#all">
       <xsl:apply-templates select="@*, node()" mode="#current"/>
