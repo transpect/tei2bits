@@ -536,18 +536,19 @@
         </contrib>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:for-each-group select="node()" group-adjacent="boolean(.[self::persName | self::location | self::graphic])">
+        <xsl:for-each-group select="node()" group-starting-with="persName">
+          <xsl:for-each-group select="current-group()" group-adjacent="boolean(.[self::persName | self::location | self::graphic])">
           <xsl:choose>
             <xsl:when test="current-grouping-key()">
               <contrib contrib-type="{(current-group()[self::persName]/@type, 'author')[1]}">
-                <xsl:apply-templates select="current-group()" mode="#current"/>
+                  <xsl:apply-templates select="current-group()" mode="#current"/>
               </contrib>
             </xsl:when>
             <xsl:otherwise>
               <xsl:apply-templates select="current-group()" mode="#current"/>
             </xsl:otherwise>
           </xsl:choose>
-        </xsl:for-each-group>
+        </xsl:for-each-group></xsl:for-each-group>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
