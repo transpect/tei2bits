@@ -538,17 +538,19 @@
       <xsl:otherwise>
         <xsl:for-each-group select="node()" group-starting-with="persName">
           <xsl:for-each-group select="current-group()" group-adjacent="boolean(.[self::persName | self::location | self::graphic])">
-          <xsl:choose>
-            <xsl:when test="current-grouping-key()">
-              <contrib contrib-type="{(current-group()[self::persName]/@type, 'author')[1]}">
+            <xsl:choose>
+              <xsl:when test="current-grouping-key()">
+                <contrib contrib-type="{(current-group()[self::persName]/@type, 'author')[1]}">
                   <xsl:apply-templates select="current-group()" mode="#current"/>
-              </contrib>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:apply-templates select="current-group()" mode="#current"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:for-each-group></xsl:for-each-group>
+                </contrib>
+              </xsl:when>
+              <xsl:when test="current-group()[self::text()]"/>
+              <xsl:otherwise>
+                <xsl:apply-templates select="current-group()" mode="#current"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:for-each-group>
+        </xsl:for-each-group>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -1196,7 +1198,8 @@
               <xsl:element name="contrib-group">
                 <xsl:for-each select="current-group()">
                   <xsl:apply-templates select="." mode="#current"/>
-                  <xsl:if test="not(*:bio) and not(ancestor::*[self::*:front-matter-part[@book-part-type='editorial']])">
+                  <xsl:if test="not(*:bio) and not(ancestor::*[self::*:front-matter-part[@book-part-type='editorial']]) and *:name">
+
                     <xsl:call-template name="contrib-bio"/>
                   </xsl:if>
                 </xsl:for-each>
