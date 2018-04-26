@@ -536,7 +536,7 @@
         </contrib>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:for-each-group select="node()" group-starting-with="persName">
+        <xsl:for-each-group select="node()" group-starting-with="persName[not(preceding-sibling::*[1][self::graphic])] | graphic[following-sibling::*[1][self::parsName]]">
           <xsl:for-each-group select="current-group()" group-adjacent="boolean(.[self::persName | self::location | self::graphic])">
             <xsl:choose>
               <xsl:when test="current-grouping-key()">
@@ -1199,7 +1199,6 @@
                 <xsl:for-each select="current-group()">
                   <xsl:apply-templates select="." mode="#current"/>
                   <xsl:if test="not(*:bio) and not(ancestor::*[self::*:front-matter-part[@book-part-type='editorial']]) and *:name">
-
                     <xsl:call-template name="contrib-bio"/>
                   </xsl:if>
                 </xsl:for-each>
@@ -1233,6 +1232,12 @@
   <xsl:template name="contrib-bio">
   <!-- mehrere Artikelautoren hier nicht berücksichtigt. Müsste dann pro contrib aufgerufen werden!-->
     <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((.//*:given-names/text(), .//*:surname/text()),  ' ')))" mode="#current">
+      <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
+    </xsl:apply-templates>
+  </xsl:template>
+
+  <xsl:template match="*:contrib/*:bio[every $elt in * satisfies ($elt[self::*:graphic])]" mode="clean-up">
+    <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((../*:name/*:given-names/text(), ../*:name/*:surname/text()),  ' ')))/node()" mode="#current">
       <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
     </xsl:apply-templates>
   </xsl:template>
