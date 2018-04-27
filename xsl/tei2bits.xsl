@@ -1237,9 +1237,11 @@
   </xsl:template>
 
   <xsl:template match="*:contrib/*:bio[every $elt in * satisfies ($elt[self::*:graphic])]" mode="clean-up">
-    <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((../*:name/*:given-names/text(), ../*:name/*:surname/text()),  ' ')))/node()" mode="#current">
-      <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
-    </xsl:apply-templates>
+    <xsl:copy copy-namespaces="no">
+      <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((../*:name/*:given-names/text(), ../*:name/*:surname/text()),  ' ')))/node()" mode="#current">
+        <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
+      </xsl:apply-templates>
+    </xsl:copy>
   </xsl:template>
 
   <xsl:template match="*:book-meta" mode="resort" priority="2">
