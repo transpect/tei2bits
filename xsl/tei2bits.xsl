@@ -1247,7 +1247,7 @@
 
   <xsl:template name="contrib-bio">
   <!-- mehrere Artikelautoren hier nicht berücksichtigt. Müsste dann pro contrib aufgerufen werden!-->
-    <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((.//*:given-names/text(), .//*:surname/text()),  ' ')))" mode="#current">
+    <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((.//*:given-names/text(), .//*:suffix/text(), .//*:surname/text()),  ' ')))" mode="#current">
       <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
     </xsl:apply-templates>
   </xsl:template>
