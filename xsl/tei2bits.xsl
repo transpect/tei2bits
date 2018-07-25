@@ -1247,14 +1247,14 @@
 
   <xsl:template name="contrib-bio">
   <!-- mehrere Artikelautoren hier nicht berücksichtigt. Müsste dann pro contrib aufgerufen werden!-->
-    <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((.//*:given-names/text(), .//*:suffix/text(), .//*:surname/text()),  ' ')))" mode="#current">
+    <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((.//*:given-names/text(), .//*:suffix/text(), .//*:surname/text()),  ' ')))[1]" mode="#current">
       <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
     </xsl:apply-templates>
   </xsl:template>
 
   <xsl:template match="*:contrib/*:bio[every $elt in * satisfies ($elt[self::*:graphic])]" mode="clean-up">
     <xsl:copy copy-namespaces="no">
-      <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((../*:name/*:given-names/text(), ../*:name/*:surname/text()),  ' ')))/node()" mode="#current">
+      <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((../*:name/*:given-names/text(), ../*:name/*:surname/text()),  ' ')))[1]/node()" mode="#current">
         <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
       </xsl:apply-templates>
     </xsl:copy>
