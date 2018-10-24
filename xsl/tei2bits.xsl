@@ -677,7 +677,7 @@
     </given-names>
     <xsl:if test="matches(text(), '\p{Zs}(de|von|van)', 'i')">
       <suffix content-type="particle">
-        <xsl:value-of select="normalize-space(replace(text(), '^.+?\p{Zs}(de|von|van)(\p{Zs}(de|von|van)))*([\P{L}].*$|$)', '$1$2', 'i'))"/>
+        <xsl:value-of select="normalize-space(replace(text(), '^.+?\p{Zs}(de|von|van)(\p{Zs}(de|von|van))*([\P{L}].*$|$)', '$1$2', 'i'))"/>
       </suffix>
     </xsl:if>
   </xsl:template>
@@ -1247,6 +1247,7 @@
 
   <xsl:template name="contrib-bio">
   <!-- mehrere Artikelautoren hier nicht berücksichtigt. Müsste dann pro contrib aufgerufen werden!-->
+    <xsl:message select="., normalize-space(string-join((.//*:given-names/text(), .//*:suffix/text(), .//*:surname/text()),' '))"/>
     <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((.//*:given-names/text(), .//*:suffix/text(), .//*:surname/text()),  ' ')))[1]" mode="#current">
       <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
     </xsl:apply-templates>
