@@ -170,7 +170,7 @@
     </ref>
   </xsl:template>
   
-  <xsl:template match="*[self::bibl | self::biblFull]//ref[matches(., 'DOI', 'i')]" mode="tei2bits">
+  <xsl:template match="*[self::bibl | self::biblFull]//ref[matches(., '^DOI', 'i')]" mode="tei2bits">
     <pub-id>
       <xsl:attribute name="pub-id-type" select="'doi'"/>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
