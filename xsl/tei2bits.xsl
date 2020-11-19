@@ -808,16 +808,16 @@
   </xsl:template>
   
   <xsl:template name="book-part-front-matter">
-    <xsl:if test="divGen[@type = 'toc'] or div[@type = 'dedication']">
+    <xsl:if test="divGen[@type = 'toc'] or ./div[@type = 'dedication']">
       <front-matter>
-        <xsl:apply-templates select="*[self::divGen[@type = 'toc'] | div[@type = 'dedication']]" mode="#current"/>
+        <xsl:apply-templates select="*[self::divGen[@type = 'toc'] | ./div[@type = 'dedication']]" mode="#current"/>
       </front-matter>
     </xsl:if>
   </xsl:template>
   
   <xsl:template name="book-part-body">
     <body>
-      <xsl:apply-templates select="node() except (opener[idno], byline, head, dateline, abstract, argument, keywords, p[@rend = 'artpagenums'], div[@type = ('dedication', 'index', 'app', 'appendix', 'bibliography')], div[tei2bits:is-ref-list(.)], divGen[@type = ('toc', 'index')], listBibl)" mode="#current"/>
+      <xsl:apply-templates select="node() except (opener[idno], byline, head, dateline, abstract, argument, keywords, p[@rend = 'artpagenums'], ./div[@type = ('dedication', 'index', 'app', 'appendix', 'bibliography')], ./div[tei2bits:is-ref-list(.)], divGen[@type = ('toc', 'index')], listBibl)" mode="#current"/>
     </body>
   </xsl:template>
   
@@ -1247,7 +1247,7 @@
 
   <xsl:template name="contrib-bio">
   <!-- mehrere Artikelautoren hier nicht berücksichtigt. Müsste dann pro contrib aufgerufen werden!-->
-    <xsl:message select="., normalize-space(string-join((.//*:given-names/text(), .//*:suffix/text(), .//*:surname/text()),' '))"/>
+<!--    <xsl:message select="., normalize-space(string-join((.//*:given-names/text(), .//*:suffix/text(), .//*:surname/text()),' '))"/>-->
     <xsl:apply-templates select="key('tei2bits:bio-by-name', normalize-space(string-join((.//*:given-names/text(), .//*:suffix/text(), .//*:surname/text()),  ' ')))[1]" mode="#current">
       <xsl:with-param name="render-bio" select="true()" as="xs:boolean" tunnel="yes"/>
     </xsl:apply-templates>
