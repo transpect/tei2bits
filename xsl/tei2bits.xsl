@@ -661,11 +661,11 @@
   <xsl:template match="surname" mode="tei2bits">
     <surname>
       <xsl:apply-templates select="@* except @rend" mode="#current"/>
-      <xsl:value-of select="normalize-space(replace(text(), '(^|\p{Zs})(de|von|van)([^\p{L}]|$)', '$3', 'i'))"/>
+      <xsl:value-of select="normalize-space(replace(string-join(text()), '(^|\p{Zs})(de|von|van)([^\p{L}]|$)', '$3', 'i'))"/>
     </surname>
-    <xsl:if test="matches(text(), '(^|\p{Zs})(de|von|van)([^\p{L}]|$)', 'i')">
+    <xsl:if test="matches(string-join(text()), '(^|\p{Zs})(de|von|van)([^\p{L}]|$)', 'i')">
       <suffix content-type="particle">
-        <xsl:value-of select="normalize-space(replace(text(), '(^|\p{Zs})(de|von|van)(\p{Zs}(de|von|van))*([^\p{L}].*$|$)', '$1$2', 'i'))"/>
+        <xsl:value-of select="normalize-space(replace(string-join(text()), '(^|\p{Zs})(de|von|van)(\p{Zs}(de|von|van))*([^\p{L}].*$|$)', '$1$2', 'i'))"/>
       </suffix>
     </xsl:if>
   </xsl:template>
@@ -673,11 +673,11 @@
   <xsl:template match="forename" mode="tei2bits">
     <given-names>
       <xsl:apply-templates select="@* except @rend" mode="#current"/>
-      <xsl:value-of select="normalize-space(replace(text(), '\p{Zs}(de|von|van)', '', 'i'))"/>
+      <xsl:value-of select="normalize-space(replace(string-join(text()), '\p{Zs}(de|von|van)', '', 'i'))"/>
     </given-names>
-    <xsl:if test="matches(text(), '\p{Zs}(de|von|van)', 'i')">
+    <xsl:if test="matches(string-join(text()), '\p{Zs}(de|von|van)', 'i')">
       <suffix content-type="particle">
-        <xsl:value-of select="normalize-space(replace(text(), '^.+?\p{Zs}(de|von|van)(\p{Zs}(de|von|van))*([\P{L}].*$|$)', '$1$2', 'i'))"/>
+        <xsl:value-of select="normalize-space(replace(string-join(text()), '^.+?\p{Zs}(de|von|van)(\p{Zs}(de|von|van))*([\P{L}].*$|$)', '$1$2', 'i'))"/>
       </suffix>
     </xsl:if>
   </xsl:template>
