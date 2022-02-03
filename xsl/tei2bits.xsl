@@ -34,6 +34,10 @@
   
   <xsl:template match="*" mode="class-att"/>
 
+  <xsl:template match="figure/@rend" mode="tei2bits" priority="2">
+    <xsl:attribute name="fig-type" select="."/>
+  </xsl:template>
+
   <xsl:template match="@rend" mode="tei2bits">
     <xsl:attribute name="{if (..[self::hi | self::seg]) then 'style-type' else 'content-type'}" select="."/>
   </xsl:template>
@@ -756,7 +760,7 @@
     </trans-abstract>
   </xsl:template>
   
-  <xsl:variable name="structural-containers" as="xs:string+" select="('dedication', 'marginal', 'motto', 'part', 'article', 'chapter')"/>
+  <xsl:variable name="structural-containers" as="xs:string+" select="('dedication', 'marginal', 'motto', 'part', 'article', 'chapter', 'bibliography')"/>
   <xsl:variable name="main-structural-containers" as="xs:string+" select="('part', 'article', 'book-review', 'chapter')"/>
 
   <!-- document structure -->
@@ -782,6 +786,19 @@
   
   <xsl:template mode="tei2bits" priority="2" match="*[self::div[not(@type = ($structural-containers, 'bibliography'))] | *[matches(local-name(), 'div[1-9]')]]/@rend">
     <xsl:attribute name="sec-type" select="."/>
+  </xsl:template>
+
+  <xsl:template match="div[@type = 'bibliography']" mode="tei2bits" priority="3">
+    <xsl:choose>
+      <xsl:when test="every $n in * satisfies ($n[self::listBibl])">
+        <xsl:apply-templates select="node()" mode="#current"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <ref-list>
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </ref-list>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="div[@type = $main-structural-containers]" mode="tei2bits" priority="3">
@@ -1114,12 +1131,32 @@
 
   <xsl:template match="graphic[not(parent::*[self::figure])]" mode="tei2bits">
     <inline-graphic>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@*, binaryObject/@mimeType, node()" mode="#current"/>
     </inline-graphic>
   </xsl:template>
 
+  <xsl:template match="graphic/binaryObject" mode="tei2bits"/>
+
+  <xsl:variable name="comment-to-pi" as="xs:boolean" select="false()"/>
+  <xsl:variable name="comment-to-comment" as="xs:boolean" select="true()"/>
+
+  <xsl:template match="note[@type = 'comment']" mode="tei2bits">
+    <xsl:choose>
+      <xsl:when test="$comment-to-pi">
+        <xsl:processing-instruction name="comment" select="string-join(descendant::text())"/>
+      </xsl:when>
+      <xsl:when test="$comment-to-comment">
+        <xsl:comment select="string-join(descendant::text())"/>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+ 
   <xsl:template match="@preformat-type" mode="tei2bits">
     <xsl:attribute name="{name()}" select="."/>
+  </xsl:template>
+
+  <xsl:template match="@mimeType" mode="tei2bits">
+    <xsl:attribute name="mimetype" select="."/>
   </xsl:template>
   
   <xsl:template match="tbody | thead | tfoot | th | tr | td | colgroup | col" mode="tei2bits">
@@ -1189,6 +1226,20 @@
           <xsl:with-param name="root" select="$root" tunnel="yes" as="document-node()"/>
         </xsl:call-template>
       </title>
+  </xsl:template>
+
+  <xsl:variable name="tei2bits:alt-title-regex" as="xs:string" select="'transpect_alt-title'"/>
+
+  <xsl:template match="head[matches(@rend, $tei2bits:alt-title-regex)]" mode="tei2bits" priority="2">
+   <alt-title>
+      <xsl:call-template name="css:content">
+        <xsl:with-param name="root" select="$root" tunnel="yes" as="document-node()"/>
+      </xsl:call-template>
+   </alt-title>
+  </xsl:template>
+
+  <xsl:template match="head[matches(@rend, $tei2bits:alt-title-regex)]/@rend" mode="tei2bits" priority="2">
+    <xsl:attribute name="alt-title-type" select="."/>
   </xsl:template>
 
   <xsl:template match="head[@type = 'sub']" mode="tei2bits" priority="2">
