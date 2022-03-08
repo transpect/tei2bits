@@ -369,7 +369,7 @@
       </xsl:when>
       <xsl:otherwise>
         <kwd-group>
-          <xsl:apply-templates select="term[1]/@xml:lang" mode="#current"/>
+          <xsl:apply-templates select="@rendition, term[1]/@xml:lang, @scheme" mode="#current"/>
           <xsl:for-each select="term">
             <kwd>
               <xsl:apply-templates select="@id, @key" mode="#current"/>
@@ -380,9 +380,13 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-  
+
   <xsl:template match="keywords/term/@key" mode="tei2bits">
     <xsl:attribute name="content-type" select="."/>
+  </xsl:template>
+  
+  <xsl:template match="keywords/@rendition | keywords/@scheme" mode="tei2bits">
+    <xsl:attribute name="kwd-group-type" select="."/>
   </xsl:template>
 
   <xsl:template match="css:rules" mode="tei2bits">
@@ -852,6 +856,10 @@
     <xsl:attribute name="book-part-type" select="."/>
   </xsl:template>
 
+  <xsl:template match="div[@type = $main-structural-containers][not(@subtype)]/@type" mode="tei2bits" priority="3">
+    <xsl:attribute name="book-part-type" select="."/>
+  </xsl:template>
+
   <xsl:template match="div[@type = $main-structural-containers]/opener[every $n in node()[normalize-space()] satisfies $n[self::idno]]/idno" mode="tei2bits">
     <book-part-id>
        <xsl:apply-templates select="@*, node()" mode="#current"/>
@@ -894,17 +902,23 @@
     </xsl:choose>
   </xsl:template>
 
-  <!-- Not handled yet or no equivalent elements determined yet-->
-  <!--
+  <xsl:template match="*[self::table | self::figure]/postscript" mode="tei2bits" priority="2">
+    <caption>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </caption>
+  </xsl:template>
     
-    <xsl:template match="postscript" mode="tei2bits_UNHANDLED">
-    <div>
-    <xsl:call-template name="css:content"/>
-    </div>
-    </xsl:template>
-    
-  -->
-  
+
+  <xsl:template match="postscript[p]" mode="tei2bits">
+    <xsl:apply-templates select="node()" mode="#current"/>
+  </xsl:template>
+
+  <xsl:template match="postscript[empty(p)]" mode="tei2bits">
+    <p>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </p>
+  </xsl:template>
+
   <xsl:template match="epigraph" mode="tei2bits">
     <disp-quote>
       <xsl:attribute name="content-type" select="'epigraph'"/>
