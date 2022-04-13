@@ -183,7 +183,7 @@
  
   <xsl:function name="tei2bits:is-ref-list" as="xs:boolean">
     <xsl:param name="elt" as="element(div)"/>
-    <xsl:sequence select="exists($elt[self::div[every $elt in * satisfies ($elt[self::listBibl[not(head)] or self::head])]])"/>
+    <xsl:sequence select="exists($elt[self::div[exists(descendant::bibl)][every $elt in * satisfies ($elt[self::listBibl[not(head)] or self::head])]])"/>
   </xsl:function>
 
   <xsl:template match="div[tei2bits:is-ref-list(.)]" mode="tei2bits" priority="2">
