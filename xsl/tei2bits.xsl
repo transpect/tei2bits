@@ -353,10 +353,13 @@
   </xsl:template>
   
   <xsl:template match="keywords" mode="tei2bits">
+    <xsl:variable name="context" select="."/>
     <xsl:choose>
       <xsl:when test="term[@xml:lang]">
+        <!-- different keywordset per language -->
         <xsl:for-each-group select="term" group-by="@xml:lang">
-          <kwd-group kwd-group-type="keyword">
+          <kwd-group>
+            <xsl:apply-templates select="$context/@rendition" mode="#current"/>
             <xsl:attribute name="xml:lang" select="current-grouping-key()"/>
             <xsl:for-each select="current-group()">
               <kwd>
@@ -1339,7 +1342,7 @@
   </xsl:template>
 
   <xsl:template match="*:book-part-meta" mode="resort" priority="2">
-    <xsl:copy  copy-namespaces="no">
+    <xsl:copy copy-namespaces="no">
     <!-- bringing the meta elements into the correct order -->
       <xsl:apply-templates select="@*, *:book-part-id, *:subj-group, *:title-group, *:contrib-group, *:aff, *:aff-affiliates, 
         *:author-notes, *:pub-date, *:edition, *:issn, *:issn-l, *:isbn, *:publisher, *:fpage, *:lpage, 
@@ -1350,6 +1353,12 @@
     </xsl:copy>
   </xsl:template>
 
+  <xsl:template match="*:title-group" mode="resort" priority="2">
+    <xsl:copy copy-namespaces="no">
+    <!-- bringing the title elements into the correct order -->
+      <xsl:apply-templates select="@*, *:label, *:title, *:subtitle, *:trans-title, *:alt-title, *:fn-group" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
 
   <xsl:template match="*:title[*:label] | *:subtitle[*:label]" mode="clean-up" priority="2">
     <xsl:apply-templates select="*:label" mode="#current"/>
