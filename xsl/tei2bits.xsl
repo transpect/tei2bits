@@ -101,7 +101,7 @@
     <xsl:attribute name="specific-use" select="."/>
   </xsl:template>
   
-  <xsl:template match="/*/@*[name() = ('source-dir-uri', 'xml:base')]" mode="jats2html">
+  <xsl:template match="/*/@*[name() = ('xml:base')]" mode="tei2bits">
     <xsl:copy/>
   </xsl:template>
   
