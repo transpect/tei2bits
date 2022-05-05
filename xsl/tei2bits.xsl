@@ -1356,7 +1356,7 @@
   <xsl:template match="*:title-group" mode="resort" priority="2">
     <xsl:copy copy-namespaces="no">
     <!-- bringing the title elements into the correct order -->
-      <xsl:apply-templates select="@*, *:label, *:title, *:subtitle, *:trans-title, *:alt-title, *:fn-group" mode="#current"/>
+      <xsl:apply-templates select="@*, *:label, *:title, *:subtitle, *:trans-title-group, *:alt-title, *:fn-group" mode="#current"/>
     </xsl:copy>
   </xsl:template>
 
