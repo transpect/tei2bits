@@ -828,7 +828,7 @@
         <xsl:apply-templates select="head" mode="#current"/>
       </title-group>
       <xsl:apply-templates select="byline, dateline, (abstract, argument, key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::abstract][@corresp != '#'])[1], 
-                                   (keywords, key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::keywords][@corresp != '#'])[1], p[@rend = 'artpagenums']" 
+                                   keywords, key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::keywords][@corresp != '#'], p[@rend = 'artpagenums']" 
                              mode="#current"/>
     </book-part-meta>
   </xsl:template>
