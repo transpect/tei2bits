@@ -359,6 +359,7 @@
         <!-- different keywordset per language -->
         <xsl:for-each-group select="term" group-by="@xml:lang">
           <kwd-group>
+            <xsl:attribute name="kwd-group-type" select="'keyword'"/>
             <xsl:apply-templates select="$context/@rendition" mode="#current"/>
             <xsl:attribute name="xml:lang" select="current-grouping-key()"/>
             <xsl:for-each select="current-group()">
@@ -827,7 +828,7 @@
       <title-group>
         <xsl:apply-templates select="head" mode="#current"/>
       </title-group>
-      <xsl:apply-templates select="byline, dateline, (abstract, argument, key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::abstract][@corresp != '#'])[1], 
+      <xsl:apply-templates select="byline, dateline, (abstract | argument | key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::abstract][@corresp != '#'])[1], 
                                    keywords, key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::keywords][@corresp != '#'], p[@rend = 'artpagenums']" 
                              mode="#current"/>
     </book-part-meta>
