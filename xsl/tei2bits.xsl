@@ -486,10 +486,23 @@
   <xsl:template match="byline/ref" mode="tei2bits" priority="2">
     <xsl:element name="ext-link">
       <xsl:attribute name="href" select="@target"/>
-      <xsl:attribute name="ext-link-type" select="if (matches(@target, 'mail|@')) then 'email' else 'uri'"/>
+      <xsl:sequence select="tr:determine-link-type(@target)"/>
       <xsl:apply-templates select="node()" mode="#current"/>
     </xsl:element>
   </xsl:template>
+
+  <xsl:function name="tr:determine-link-type" as="attribute(ext-link-type)?">
+    <xsl:param name="target" as="xs:string"/>
+    <xsl:variable name="type">
+      <xsl:choose>
+      <xsl:when test="matches($target, 'ftp\.')"><xsl:value-of select="'ftp'"/></xsl:when>
+      <xsl:when test="matches($target, 'doi\.')"><xsl:value-of select="'doi'"/></xsl:when>
+      <xsl:when test="matches($target, 'mail|@')"><xsl:value-of select="'mail'"/></xsl:when>
+      <xsl:otherwise><xsl:value-of select="'uri'"/></xsl:otherwise>
+    </xsl:choose>
+    </xsl:variable>
+    <xsl:attribute name="ext-link-type" select="$type"/>
+  </xsl:function>
 
   <xsl:template match="docTitle/titlePart[not(@type) or @type = 'main']" mode="tei2bits" priority="2">
     <xsl:param name="in-metadata" as="xs:boolean?" tunnel="yes"/>
@@ -718,7 +731,9 @@
   
   <xsl:template match="ref | ptr " mode="tei2bits">
     <ext-link>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:sequence select="tr:determine-link-type(@target)"/>
+      <xsl:apply-templates select="node()" mode="#current"/>
     </ext-link>
   </xsl:template>
   
