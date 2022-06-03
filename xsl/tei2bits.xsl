@@ -360,8 +360,8 @@
         <xsl:for-each-group select="term" group-by="@xml:lang">
           <kwd-group>
             <xsl:attribute name="kwd-group-type" select="'keyword'"/>
-            <xsl:apply-templates select="$context/@rendition" mode="#current"/>
             <xsl:attribute name="xml:lang" select="current-grouping-key()"/>
+            <xsl:apply-templates select="$context/@rendition" mode="#current"/>
             <xsl:for-each select="current-group()">
               <kwd>
                 <xsl:apply-templates select="@id, @key" mode="#current"/>
@@ -490,19 +490,6 @@
       <xsl:apply-templates select="node()" mode="#current"/>
     </xsl:element>
   </xsl:template>
-
-  <xsl:function name="tr:determine-link-type" as="attribute(ext-link-type)?">
-    <xsl:param name="target" as="xs:string"/>
-    <xsl:variable name="type">
-      <xsl:choose>
-      <xsl:when test="matches($target, 'ftp\.')"><xsl:value-of select="'ftp'"/></xsl:when>
-      <xsl:when test="matches($target, 'doi\.')"><xsl:value-of select="'doi'"/></xsl:when>
-      <xsl:when test="matches($target, 'mail|@')"><xsl:value-of select="'mail'"/></xsl:when>
-      <xsl:otherwise><xsl:value-of select="'uri'"/></xsl:otherwise>
-    </xsl:choose>
-    </xsl:variable>
-    <xsl:attribute name="ext-link-type" select="$type"/>
-  </xsl:function>
 
   <xsl:template match="docTitle/titlePart[not(@type) or @type = 'main']" mode="tei2bits" priority="2">
     <xsl:param name="in-metadata" as="xs:boolean?" tunnel="yes"/>
