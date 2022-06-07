@@ -24,7 +24,9 @@
   <xsl:key name="rule-by-name" match="css:rule" use="@name"/>
   <xsl:key name="by-id" match="*[@id | @xml:id]" use="@id | @xml:id"/>
   <xsl:key name="link-by-anchor" match="ref" use="@target"/>
-  
+  <xsl:key name="tei2bits:bio-by-name" match="*:bio" use="normalize-space(replace(string-join(*:p[1]/*[1]//text(), ''), '^(.+?)[:,]\p{Zs}*$', '$1'))"/>
+  <xsl:key name="tei2bits:corresp-meta" match="/TEI/teiHeader/profileDesc/textClass/keywords | /TEI/teiHeader/profileDesc/abstract" use="@corresp"/>
+
   <!-- identity template -->
   <xsl:template match="* | @*" mode="tei2bits clean-up resort" priority="-0.5">
     <xsl:copy copy-namespaces="no">
@@ -483,6 +485,20 @@
     </xsl:choose>
   </xsl:template>
 
+  <xsl:function name="tr:determine-link-type" as="attribute(ext-link-type)?">
+    <xsl:param name="target" as="xs:string"/>
+    <!-- https://redmine.le-tex.de/issues/12756 -->
+    <xsl:variable name="type">
+      <xsl:choose>
+      <xsl:when test="matches($target, 'doi\.')"><xsl:value-of select="'doi'"/></xsl:when>
+      <xsl:when test="matches($target, 'ftp\.')"><xsl:value-of select="'ftp'"/></xsl:when>
+      <xsl:when test="matches($target, '@|mailto')"><xsl:value-of select="'mail'"/></xsl:when>
+      <xsl:otherwise><xsl:value-of select="'uri'"/></xsl:otherwise>
+    </xsl:choose>
+    </xsl:variable>
+    <xsl:attribute name="ext-link-type" select="$type"/>
+  </xsl:function>
+
   <xsl:template match="byline/ref" mode="tei2bits" priority="2">
     <xsl:element name="ext-link">
       <xsl:attribute name="href" select="@target"/>
@@ -822,7 +838,6 @@
   </xsl:template>
 
   <xsl:template match="div[@type = $main-structural-containers]/@rend" mode="tei2bits" priority="3"/>
-  <xsl:key name="tei2bits:corresp-meta" match="/TEI/teiHeader/profileDesc/textClass/keywords | /TEI/teiHeader/profileDesc/abstract" use="@corresp"/>
 
   <xsl:template name="book-part-meta">
     <book-part-meta>
@@ -1315,8 +1330,6 @@
       <xsl:next-match/>
     </xsl:if>
   </xsl:template>
-
-  <xsl:key name="tei2bits:bio-by-name" match="*:bio" use="normalize-space(replace(string-join(*:p[1]/*[1]//text(), ''), '^(.+?)[:,]\p{Zs}*$', '$1'))"/>
 
   <xsl:template name="contrib-bio">
   <!-- mehrere Artikelautoren hier nicht berücksichtigt. Müsste dann pro contrib aufgerufen werden!-->
