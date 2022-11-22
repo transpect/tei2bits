@@ -786,7 +786,7 @@
     </trans-abstract>
   </xsl:template>
   
-  <xsl:variable name="structural-containers" as="xs:string+" select="('dedication', 'marginal', 'motto', 'part', 'article', 'chapter', 'bibliography')"/>
+  <xsl:variable name="structural-containers" as="xs:string+" select="('dedication', 'marginal', 'motto', 'part', 'article', 'chapter', 'bibliography', 'appendix')"/>
   <xsl:variable name="main-structural-containers" as="xs:string+" select="('part', 'article', 'book-review', 'chapter')"/>
 
   <!-- document structure -->
@@ -796,6 +796,16 @@
       <xsl:call-template name="sec-meta"/>
       <xsl:call-template name="sec-body"/>
     </sec>
+  </xsl:template>
+
+  <xsl:template mode="tei2bits" match="div[@type = 'appendix']" priority="3">
+    <book-app>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:call-template name="book-part-meta"/>
+      <xsl:call-template name="book-part-front-matter"/>
+      <xsl:call-template name="book-part-body"/>
+      <xsl:call-template name="book-part-back"/>
+    </book-app>
   </xsl:template>
   
   <xsl:template name="sec-meta">
