@@ -758,12 +758,36 @@
     </boxed-text>
   </xsl:template>
   
-  <xsl:template match="floatingText/front | floatingText/back" mode="tei2bits">
-    <sec content-type="{local-name()}">
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
-    </sec>
+  <xsl:template match="floatingText/front  | floatingText/back" mode="tei2bits">
+    <xsl:choose>
+      <xsl:when test="every $n in node() satisfies $n[self::head]">
+        <caption>
+          <xsl:apply-templates select="node()" mode="#current"/>
+        </caption>
+      </xsl:when>
+      <xsl:otherwise>    
+        <sec content-type="{local-name()}">
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </sec>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
-  
+
+  <xsl:template match="floatingText/front  | floatingText/back" mode="tei2bits">
+    <xsl:choose>
+      <xsl:when test="every $n in node() satisfies $n[self::head]">
+        <caption>
+          <xsl:apply-templates select="node()" mode="#current"/>
+        </caption>
+      </xsl:when>
+      <xsl:otherwise>    
+        <sec content-type="{local-name()}">
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </sec>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template match="floatingText/body" mode="tei2bits">
     <xsl:apply-templates select="node()" mode="#current"/>
   </xsl:template>
