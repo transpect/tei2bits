@@ -1177,9 +1177,12 @@
   </xsl:template>
   
   <xsl:template match="graphic/desc" mode="tei2bits">
-    <alt-text>
-      <xsl:apply-templates select="node()" mode="#current"/>
-    </alt-text>
+    <xsl:apply-templates select="ref" mode="#current"/>
+    <xsl:if test="normalize-space()">
+      <alt-text>
+        <xsl:apply-templates select="node() except ref" mode="#current"/>
+      </alt-text>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="addrLine" mode="tei2bits">
