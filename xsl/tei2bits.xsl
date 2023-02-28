@@ -879,12 +879,14 @@
       <title-group>
         <xsl:apply-templates select="head" mode="#current"/>
       </title-group>
-      <xsl:apply-templates select="byline, dateline, (abstract | argument | key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::abstract][@corresp != '#'])[1], 
+      <xsl:apply-templates select="byline, dateline, (abstract, argument, key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::abstract][@corresp != '#'])[1], 
                                    keywords, key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::keywords][@corresp != '#'], p[@rend = 'artpagenums']" 
                              mode="#current"/>
     </book-part-meta>
   </xsl:template>
   
+  <xsl:template match="argument/@rend[. = 'abstract']" mode="tei2bits"/>
+
   <xsl:template name="book-part-front-matter">
     <xsl:if test="divGen[@type = 'toc'] or ./div[@type = 'dedication']">
       <front-matter>
