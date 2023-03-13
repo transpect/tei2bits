@@ -804,7 +804,7 @@
     </abstract>
   </xsl:template>
 
-  <xsl:template match="abstract[@xml:lang ne /*/@xml:lang] | argument[@xml:lang ne /*/@xml:lang]" mode="tei2bits" priority="2">
+  <xsl:template match="abstract[@xml:lang ne /*/@xml:lang] | argument[@rend='abstract'][@xml:lang ne /*/@xml:lang]" mode="tei2bits" priority="2">
     <trans-abstract>
       <xsl:apply-templates select="@* except @corresp, node()" mode="#current"/>
     </trans-abstract>
@@ -877,10 +877,10 @@
     <book-part-meta>
       <xsl:apply-templates select="opener[idno]" mode="#current"/>
       <title-group>
-        <xsl:apply-templates select="head" mode="#current"/>
+        <xsl:apply-templates select="head, argument[@rend = 'alternative-title']" mode="#current"/>
       </title-group>
-      <xsl:apply-templates select="byline, dateline, (abstract, argument, key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::abstract][@corresp != '#'])[1], 
-                                   keywords, key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::keywords][@corresp != '#'], p[@rend = 'artpagenums']" 
+      <xsl:apply-templates select="byline, dateline, (abstract, argument[@rend = 'abstract'], key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::abstract][@corresp != '#'])[1], 
+                                    keywords, key('tei2bits:corresp-meta', concat('#', current()/@xml:id))[self::keywords][@corresp != '#'], p[@rend = 'artpagenums']" 
                              mode="#current"/>
     </book-part-meta>
   </xsl:template>
@@ -929,10 +929,22 @@
     <xsl:attribute name="book-part-id-type" select="lower-case(.)"/>
   </xsl:template>
 
-  <xsl:template match="argument" mode="tei2bits">
+  <xsl:template match="argument[@rend = 'abstract']" mode="tei2bits">
     <abstract>
       <xsl:call-template name="css:content"/>
     </abstract>
+  </xsl:template>
+
+  <xsl:template match="argument[@rend = 'alternative-title']" mode="tei2bits">
+    <trans-title-group>
+      <xsl:copy-of select="(head/@xml:lang, p/@xml:lang)[last()]"/>
+      <xsl:if test="head">
+        <label><xsl:apply-templates select="head/(@*, node())" mode="#current"/></label>
+      </xsl:if>
+      <xsl:if test="p">
+        <trans-title><xsl:apply-templates select="p/@*, p/node()" mode="#current"/></trans-title>
+      </xsl:if>
+    </trans-title-group>
   </xsl:template>
 
   <xsl:template match="p[@rend = 'artpagenums']" mode="tei2bits">
