@@ -937,7 +937,7 @@
 
   <xsl:template match="argument[@rend = 'alternative-title']" mode="tei2bits">
     <trans-title-group>
-      <xsl:copy-of select="(head/@xml:lang, p/@xml:lang)[last()]"/>
+      <xsl:copy-of select="(head/@xml:lang, p/@xml:lang, @xml:lang)[last()]"/>
       <xsl:if test="head">
         <label><xsl:apply-templates select="head/(@*, node())" mode="#current"/></label>
       </xsl:if>
