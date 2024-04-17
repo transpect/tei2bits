@@ -167,6 +167,12 @@
     </ref>
   </xsl:template>
   
+  <xsl:template match="bibl[@type = 'source']" mode="tei2bits" priority="3">
+    <attrib>
+      <xsl:apply-templates select="@* except @type, node()" mode="#current"/>
+    </attrib>
+  </xsl:template>
+  
   <xsl:template match="biblFull" mode="tei2bits">
     <ref>
       <xsl:apply-templates select="@*" mode="#current"/>
