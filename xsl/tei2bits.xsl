@@ -1427,7 +1427,14 @@
       </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
-
+  
+  <xsl:template match="*:table" mode="resort" priority="2">
+    <xsl:copy copy-namespaces="no">
+    <!-- bringing the title elements into the correct order -->
+      <xsl:apply-templates select="@*, (*:col, *:colgroup), (*:thead, *:tfoot, *:tbody |*:tr)" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
   <xsl:template match="*:title-group" mode="resort" priority="2">
     <xsl:copy copy-namespaces="no">
     <!-- bringing the title elements into the correct order -->
