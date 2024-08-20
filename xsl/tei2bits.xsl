@@ -695,11 +695,11 @@
   <xsl:template match="surname" mode="tei2bits">
     <surname>
       <xsl:apply-templates select="@* except @rend" mode="#current"/>
-      <xsl:value-of select="normalize-space(replace(string-join(text()), '(^|\p{Zs})(de|von|van|v\.)([^\p{L}]|$)', '$3', 'i'))"/>
+      <xsl:value-of select="normalize-space(replace(string-join(text()), '^\p{Zs}?(de|von|van|v\.)([^\p{L}]|$)', '$2', 'i'))"/>
     </surname>
-    <xsl:if test="matches(string-join(text()), '(^|\p{Zs})(de|von|van|v\.)([^\p{L}]|$)', 'i')">
+    <xsl:if test="matches(string-join(text()), '^\p{Zs}?(de|von|van|v\.)([^\p{L}]|$)', 'i')">
       <suffix content-type="particle">
-        <xsl:value-of select="normalize-space(replace(string-join(text()), '(^|\p{Zs})(de|von|van|v\.)(\p{Zs}(de|von|van|v\.))*([^\p{L}].*$|$)', '$1$2', 'i'))"/>
+        <xsl:value-of select="normalize-space(replace(string-join(text()), '^\p{Zs}?(de|von|van|v\.)(\p{Zs}(de|von|van|v\.))*([^\p{L}].*$|$)', '$1$2', 'i'))"/>
       </suffix>
     </xsl:if>
   </xsl:template>
