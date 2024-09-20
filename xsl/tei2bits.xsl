@@ -1359,7 +1359,7 @@
               <xsl:element name="contrib-group">
                 <xsl:for-each select="current-group()">
                   <xsl:apply-templates select="." mode="#current"/>
-                  <xsl:if test="not(*:bio) and not(ancestor::*[self::*:front-matter-part[@book-part-type='editorial']]) and *:name">
+                  <xsl:if test="not(*:bio[*:p]) and *:name">
                     <xsl:call-template name="contrib-bio"/>
                   </xsl:if>
                 </xsl:for-each>
