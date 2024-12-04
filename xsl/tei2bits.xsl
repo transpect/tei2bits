@@ -275,7 +275,13 @@
     </issn>
   </xsl:template>
 
-  <xsl:template match="seriesStmt/idno[@type = ('doi', 'poi', 'isbn')]" mode="tei2bits">
+  <xsl:template match="seriesStmt/idno[@type = 'isbn']" mode="tei2bits">
+    <isbn>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </isbn>
+  </xsl:template>
+  
+  <xsl:template match="seriesStmt/idno[@type = ('doi', 'poi')]" mode="tei2bits">
     <book-id book-id-type="{@type}">
       <xsl:apply-templates select="node()" mode="#current"/>
     </book-id>
