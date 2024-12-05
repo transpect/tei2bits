@@ -18,6 +18,9 @@
   
   <xsl:param name="debug" select="'yes'"/>
   <xsl:param name="debug-dir-uri" select="'debug'"/>
+  <xsl:param name="isbn-as-book-id" required="false" select="false()">
+    <!--default: create isbn element-->
+  </xsl:param>
   
   <xsl:variable name="root" select="/" as="document-node()"/>
   
@@ -276,9 +279,18 @@
   </xsl:template>
 
   <xsl:template match="seriesStmt/idno[@type = 'isbn']" mode="tei2bits">
-    <isbn>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
-    </isbn>
+    <xsl:choose>
+      <xsl:when test="$isbn-as-book-id">
+        <book-id book-id-type="{@type}">
+          <xsl:apply-templates select="node()" mode="#current"/>
+        </book-id>
+      </xsl:when>
+      <xsl:otherwise>
+        <isbn>
+          <xsl:apply-templates select="@*, node()" mode="#current"/>
+        </isbn>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
   
   <xsl:template match="seriesStmt/idno[@type = ('doi', 'poi')]" mode="tei2bits">
