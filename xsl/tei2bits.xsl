@@ -102,7 +102,7 @@
     </xsl:message>
   </xsl:template>
   
-  <xsl:template match="@rendition" mode="tei2bits">
+  <xsl:template match="@rendition|desc/@type" mode="tei2bits">
     <xsl:attribute name="specific-use" select="."/>
   </xsl:template>
   
@@ -1218,7 +1218,7 @@
     <xsl:apply-templates select="ref" mode="#current"/>
     <xsl:if test="normalize-space()">
       <alt-text>
-        <xsl:apply-templates select="node() except ref" mode="#current"/>
+        <xsl:apply-templates select="@type, node() except ref" mode="#current"/>
       </alt-text>
     </xsl:if>
   </xsl:template>
